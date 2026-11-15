@@ -74,6 +74,12 @@ activities = {
         "schedule": "Fridays, 4:00 PM - 5:30 PM",
         "max_participants": 12,
         "participants": ["charlotte@mergington.edu", "henry@mergington.edu"]
+    },
+    "GitHub Skills": {
+        "description": "Learn practical coding and collaboration skills through GitHub's official certification program",
+        "schedule": "Wednesdays, 4:00 PM - 5:00 PM",
+        "max_participants": 25,
+        "participants": []
     }
 }
 
@@ -130,3 +136,21 @@ def unregister_from_activity(activity_name: str, email: str):
     # Remove student
     activity["participants"].remove(email)
     return {"message": f"Unregistered {email} from {activity_name}"}
+
+
+@app.get("/activities/{activity_name}/availability")
+def check_activity_availability(activity_name: str):
+    """Check availability for an activity"""
+    if activity_name not in activities:
+        raise HTTPException(status_code=404, detail="Activity not found")
+
+    activity = activities[activity_name]
+    available_spots = activity["max_participants"] - len(activity["participants"])
+
+    return {
+        "activity": activity_name,
+        "total_capacity": activity["max_participants"],
+        "enrolled": len(activity["participants"]),
+        "available_spots": available_spots,
+        "is_full": available_spots == 0
+    }
